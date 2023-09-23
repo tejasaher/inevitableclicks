@@ -1,0 +1,93 @@
+base.html
+ <!DOCTYPE html>
+ <html>
+ <head>
+     <title>My E-Commerce Site</title>
+     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+ </head>
+ <body>
+     <header>
+         <h1>My E-Commerce Site</h1>
+         <nav>
+             <ul>
+                 <li><a href="/">Home</a></li>
+                 <li><a href="/cart">Cart</a></li>
+             </ul>
+         </nav>
+     </header>
+     <main>
+         {% block content %}{% endblock %}
+     </main>
+     <footer>
+         &copy; 2023 My E-Commerce Site
+     </footer>
+ </body>
+ </html>
+
+cart.html
+ <!DOCTYPE html>
+ <html>
+ <head>
+     <title>Shopping Cart</title>
+ </head>
+ <body>
+     <h2>Your Shopping Cart</h2>
+     <!-- Add cart contents and functionality here -->
+     <p>This is your shopping cart page. You can display the items added to the cart here.</p>
+     <a href="/">Continue Shopping</a>
+ </body>
+ </html>
+logout.html
+ <!DOCTYPE html>
+ <html>
+ <head>
+     <title>Logout</title>
+ </head>
+ <body>
+     <h2>Logout Successful</h2>
+     <p>You have been successfully logged out. Thank you for using our e-commerce site!</p>
+     <a href="/">Return to Home</a>
+ </body>
+ </html>
+login.html
+ <!DOCTYPE html>
+ <html>
+ <head>
+     <title>Login</title>
+ </head>
+ <body>
+     <h2>Login</h2>
+     <form method="POST">
+         <label for="username">Username:</label>
+         <input type="text" id="username" name="username" required><br>
+         <label for="password">Password:</label>
+         <input type="password" id="password" name="password" required><br>
+         <input type="submit" value="Login">
+     </form>
+ </body>
+ </html>
+home.html
+ {% extends "base.html" %}
+ 
+ {% block content %}
+     <h2>Welcome to our e-commerce site!</h2>
+     <ul>
+         {% for product in products %}
+             <li>
+                 <a href="/product/{{ product.id }}">
+                     <h3>{{ product.name }}</h3>
+                     <p>Price: ₹{{ product.price }}</p>
+                 </a>
+             </li>
+         {% endfor %}
+     </ul>
+ {% endblock %}
+product_details.html
+ {% extends "base.html" %}
+ 
+ {% block content %}
+     <h2>{{ product.name }}</h2>
+     <p>Description: {{ product.description }}</p>
+     <p>Price: ₹{{ product.price }}</p>
+     <button>Add to Cart</button>
+ {% endblock %}
