@@ -37,7 +37,7 @@ tables:
         data_type: varchar
       - name: on_probation
         expr: on_probation
-        data_type: boolean
+        data_type: varchar
       - name: probation_end_date
         expr: probation_end_date
         data_type: date
@@ -53,11 +53,18 @@ tables:
       - name: designation
         expr: designation
         data_type: varchar
+      - name: designation_lower
+        expr: LOWER(designation)
+        data_type: varchar
       - name: business_area
         expr: business_area
         data_type: varchar
       - name: department
         expr: department
+        data_type: varchar
+      - name: department_lower
+        expr: LOWER(department)
+        description: Lowercase version of department for case-insensitive match
         data_type: varchar
       - name: team_name
         expr: team_name
@@ -143,6 +150,42 @@ tables:
       - name: designation
         expr: designation
         data_type: varchar
+  
+  - name: rating_dim
+    description: Performance rating details for employees.
+    base_table:
+      database: CORTEX_ANALYST_DEMO
+      schema: EMPLOYEE_DEMO
+      table: RATING_DIM
+    primary_key:
+      columns:
+        - emp_id
+        - rating_cycle
+    time_dimensions:
+      - name: review_period_start_date
+        expr: review_period_start_date
+        data_type: date
+      - name: review_period_end_date
+        expr: review_period_end_date
+        data_type: date
+      - name: date_of_review
+        expr: date_of_review
+        data_type: date
+    dimensions:
+      - name: emp_id
+        expr: emp_id
+        data_type: varchar
+      - name: rating_cycle
+        expr: rating_cycle
+        data_type: varchar
+      - name: emp_id_of_rater
+        expr: emp_id_of_rater
+        data_type: varchar
+    measures:
+      - name: rating
+        expr: rating
+        data_type: number
+        default_aggregation: avg
 
   - name: employee_dimension
     base_table:
@@ -157,38 +200,93 @@ tables:
         data_type: varchar
 
 relationships:
-  - name: employee_to_ctc
-    left_table: employee_dim
-    right_table: ctc_dim
+  - name: ctc_to_employee
+    left_table: ctc_dim
+    right_table: employee_dim
     relationship_columns:
       - left_column: emp_id
         right_column: emp_id
     join_type: left_outer
-    relationship_type: one_to_one
+    relationship_type: many_to_one
 
-  - name: employee_to_designation
-    left_table: employee_dim
-    right_table: designation_dim
+  - name: resignation_to_employee
+    left_table: designation_dim
+    right_table: employee_dim 
     relationship_columns:
       - left_column: emp_id
         right_column: emp_id
     join_type: left_outer
-    relationship_type: one_to_one
+    relationship_type: many_to_one
+  
+  - name: rating_to_employee
+    left_table: rating_dim
+    right_table: employee_dim
+    relationship_columns:
+      - left_column: emp_id
+        right_column: emp_id
+    join_type: left_outer
+    relationship_type: many_to_one
 
 verified_queries:
   - name: "employee ctc by name"
-    question: "What is the fixed and variable CTC of Snehal?"
+    question: "What is the fixed and variable CTC of Amit?"
     sql: |
       SELECT e.emp_name, c.fixed_ctc, c.variable_ctc
       FROM employee_dim e
       JOIN ctc_dim c ON e.emp_id = c.emp_id
-      WHERE e.emp_name ILIKE '%Snehal%';
+      WHERE e.emp_name ILIKE '%Amit%';
 
   - name: "employee designation history"
-    question: "Show me the designation history of Ramesh."
+    question: "Show me the designation history of Anjali."
     sql: |
       SELECT e.emp_name, d.previous_org, d.designation, d.designation_effective_date, d.designation_end_date
       FROM employee_dim e
       JOIN designation_dim d ON e.emp_id = d.emp_id
-      WHERE e.emp_name ILIKE '%Ramesh%'
+      WHERE e.emp_name ILIKE '%Anjali%'
       ORDER BY d.designation_effective_date DESC;
+
+  - name: "top performers in 2022"
+    question: "who are the top performers in 2024?"
+    sql: |
+      SELECT e.emp_name, r.rating
+      FROM employee_dim e
+      JOIN rating_dim r ON e.emp_id = r.emp_id
+      WHERE r.review_period_start_date >= '2024-01-01' AND r.review_period_end_date <= '2024-12-31'
+      ORDER BY r.rating DESC
+      LIMIT 10;
+  
+  - name: "employee count by department"
+    question: "How many employees are there in each department?"
+    sql: |
+      SELECT e.department, COUNT(e.emp_id) AS employee_count
+      FROM employee_dim e
+      GROUP BY e.department
+      ORDER BY employee_count DESC;
+
+  - name: " top performer in Data department"
+    question: "Who is the top performer in Data department?"
+    sql: |
+      SELECT e.emp_name, r.rating
+      FROM employee_dim e
+      JOIN rating_dim r ON e.emp_id = r.emp_id
+      WHERE e.department_lower = 'data'
+      ORDER BY r.rating DESC
+      LIMIT 1;
+  
+  - name: " employee count by designation and department"
+    question: "How many employees are there in each designation and department?"
+    sql: |
+      SELECT e.designation_lower, e.department_lower, COUNT(e.emp_id) AS employee_count
+      FROM employee_dim e
+      GROUP BY e.designation_lower, e.department_lower
+      ORDER BY employee_count DESC;
+
+  - name: " average ctc per designation"
+    question: "What is the average CTC per designation?"
+    sql: |
+      SELECT e.designation_lower, AVG(c.fixed_ctc) AS average_fixed_ctc
+      FROM employee_dim e
+      JOIN ctc_dim c ON e.emp_id = c.emp_id
+      GROUP BY e.designation_lower
+      ORDER BY average_fixed_ctc DESC;
+
