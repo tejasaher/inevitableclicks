@@ -1,0 +1,194 @@
+name: EmployeeAnalytics
+tables:
+  - name: employee_dim
+    description: Employee dimension table with core employee metadata.
+    base_table:
+      database: CORTEX_ANALYST_DEMO
+      schema: EMPLOYEE_DEMO
+      table: EMPLOYEE_DIM
+    primary_key:
+      columns:
+        - emp_id
+    time_dimensions:
+      - name: doj
+        expr: doj
+        description: Date of joining
+        unique: false
+        data_type: date
+      - name: original_doj
+        expr: original_doj
+        description: Original date of joining
+        unique: false
+        data_type: date
+    dimensions:
+      - name: emp_id
+        expr: emp_id
+        data_type: number
+      - name: emp_name
+        expr: emp_name
+        cortex_search_service_name: employee_search_service
+        description: Full name of the employee
+        data_type: varchar
+      - name: emp_firstname
+        expr: emp_firstname
+        data_type: varchar
+      - name: emp_lastname
+        expr: emp_lastname
+        data_type: varchar
+      - name: on_probation
+        expr: on_probation
+        data_type: boolean
+      - name: probation_end_date
+        expr: probation_end_date
+        data_type: date
+      - name: manager_emp_id
+        expr: manager_emp_id
+        data_type: number
+      - name: gender
+        expr: gender
+        data_type: varchar
+      - name: employment_status
+        expr: employment_status
+        data_type: varchar
+      - name: designation
+        expr: designation
+        data_type: varchar
+      - name: business_area
+        expr: business_area
+        data_type: varchar
+      - name: department
+        expr: department
+        data_type: varchar
+      - name: team_name
+        expr: team_name
+        data_type: varchar
+      - name: marital_status
+        expr: marital_status
+        data_type: varchar
+      - name: dob
+        expr: dob
+        data_type: date
+      - name: official_mail_id
+        expr: official_mail_id
+        data_type: varchar
+      - name: personal_mail_id
+        expr: personal_mail_id
+        data_type: varchar
+      - name: primary_language
+        expr: primary_language
+        data_type: varchar
+      - name: primary_phone
+        expr: primary_phone
+        data_type: varchar
+      - name: base_location
+        expr: base_location
+        data_type: varchar
+
+  - name: ctc_dim
+    description: Compensation details for each employee.
+    base_table:
+      database: CORTEX_ANALYST_DEMO
+      schema: EMPLOYEE_DEMO
+      table: CTC_DIM
+    primary_key:
+      columns:
+        - emp_id
+    time_dimensions:
+      - name: ctc_effective_date
+        expr: ctc_effective_date
+        data_type: date
+      - name: variable_ctc_effective_date
+        expr: variable_ctc_effective_date
+        data_type: date
+    measures:
+      - name: fixed_ctc
+        expr: fixed_ctc
+        data_type: number
+        default_aggregation: sum
+      - name: variable_ctc
+        expr: variable_ctc
+        data_type: number
+        default_aggregation: sum
+    dimensions:
+      - name: emp_id
+        expr: emp_id
+        data_type: number
+      - name: ctc_revision_reason
+        expr: ctc_revision_reason
+        data_type: varchar
+
+  - name: designation_dim
+    description: Historical designation details of employees.
+    base_table:
+      database: CORTEX_ANALYST_DEMO
+      schema: EMPLOYEE_DEMO
+      table: DESIGNATION_DIM
+    primary_key:
+      columns:
+        - emp_id
+    time_dimensions:
+      - name: designation_effective_date
+        expr: designation_effective_date
+        data_type: date
+      - name: designation_end_date
+        expr: designation_end_date
+        data_type: date
+    dimensions:
+      - name: emp_id
+        expr: emp_id
+        data_type: number
+      - name: previous_org
+        expr: previous_org
+        data_type: varchar
+      - name: designation
+        expr: designation
+        data_type: varchar
+
+  - name: employee_dimension
+    base_table:
+      database: cortex_analyst_demo
+      schema: employee_demo
+      table: employee_dim
+
+    dimensions:
+      - name: emp_name
+        expr: emp_name
+        cortex_search_service_name: employee_search_service
+        data_type: varchar
+
+relationships:
+  - name: employee_to_ctc
+    left_table: employee_dim
+    right_table: ctc_dim
+    relationship_columns:
+      - left_column: emp_id
+        right_column: emp_id
+    join_type: left_outer
+    relationship_type: one_to_one
+
+  - name: employee_to_designation
+    left_table: employee_dim
+    right_table: designation_dim
+    relationship_columns:
+      - left_column: emp_id
+        right_column: emp_id
+    join_type: left_outer
+    relationship_type: one_to_one
+
+verified_queries:
+  - name: "employee ctc by name"
+    question: "What is the fixed and variable CTC of Snehal?"
+    sql: |
+      SELECT e.emp_name, c.fixed_ctc, c.variable_ctc
+      FROM employee_dim e
+      JOIN ctc_dim c ON e.emp_id = c.emp_id
+      WHERE e.emp_name ILIKE '%Snehal%';
+
+  - name: "employee designation history"
+    question: "Show me the designation history of Ramesh."
+    sql: |
+      SELECT e.emp_name, d.previous_org, d.designation, d.designation_effective_date, d.designation_end_date
+      FROM employee_dim e
+      JOIN designation_dim d ON e.emp_id = d.emp_id
+      WHERE e.emp_name ILIKE '%Ramesh%'
+      ORDER BY d.designation_effective_date DESC;
