@@ -1,3 +1,4 @@
+# https://app.snowflake.com/aybbeqd/yx06618/#/streamlit-apps --> CORTEX_USER --> Welcome@1234
 """
 Cortex Analyst App
 ====================
