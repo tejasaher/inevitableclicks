@@ -57,26 +57,48 @@ def show_header_and_sidebar():
     """Display the header and sidebar of the app."""
     # Set the title and introductory text of the app
     airplane_img_url = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3ODc3Nzc3MDA3Nzc3KzctNzctN//AABEIABwAHAMBEQACEQEDEQH/xAAZAAEBAAMBAAAAAAAAAAAAAAAHBQIDBAD/xAArEAACAQIEBAQHAAAAAAAAAAABAgMEEQAFEiEGEzFRMkFxsQciYYGRofD/xAAbAQACAwEBAQAAAAAAAAAAAAACBAMFBgEHAP/EACsRAAEDAwEGBQUAAAAAAAAAAAEAAhEDBCExBRIUQYHBBmGhsdETI0Jxkf/aAAwDAQACEQMRAD8AgYpV6ivHHCvkmZBFwjQ0K09VDDWVcdIaqqlki1hbAEqL9DvsB2336t0+HaIIkxJWYvHbUq1N9hLWl260Ax1x6k9MI2kk5kjSFAmok6R0X6DCi027GNVspqOrqywo6SoqCviEELPb1sNsdAJ0CB9WnTy9wH7IHutlHl8s2b02XVMUsTyzxwyRuhVlDEA3B3GxvjobLg0oaldrKLqzDIAJHMYTDx7JFRcK5lMsaCSWFae9t7MwX9XJxZXENpk9FidkB1W8ptJwDvfwT2QnirW8SZ8IqiLlZlT6gJdSSW8ytiPf3w7ZHBCyviRjppv5ZCtLwbGeMG4glrC66+YtPy7WbQF3a+48+nbE3D/d+oSkDtY8CLRrfKZ5TOkd1D+LWaxGGlymKQGXmc6ZQfCACFB9b3+2Irt4wxWHh21dLrhwxoO/x1RrhJaldFLUT0c6z0k8kMy+F42Kkf3bAhxaZCB9NlVpY8SPNVJOL+I3TQ2bz6SLfKqKfyFviTiKp/JJjZVk0yKQ9flRmdpXaSR2d2N2Zjcse5PngE9AAgaLA4KEJML/2Q=="
-
+    st.markdown("""
+        <style>
+            .sticky-header {
+                position: fixed;
+                top: 0;
+                width: 100%;
+                background-color: white;
+                z-index: 1000;
+                padding: 10px;
+                border-bottom: 1px solid #ccc;
+            }
+            .spacer {
+                margin-top: 90px; /* space for the fixed header */
+            }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    # Sticky header content
     st.markdown(
         f"""
-        <h1 style='color: red;'>
-            <img src="{airplane_img_url}" width="40" style="vertical-align: middle; margin-right: 10px;">
-            Employee 360 
-        </h1>
+        <div class="sticky-header">
+            <h1 style='color: red; margin: 0;'>
+                <img src="{airplane_img_url}" width="40" style="vertical-align: middle; margin-right: 10px;">
+                <i>Employee 360</i> 
+            </h1>
+        </div>
         """,
         unsafe_allow_html=True
     )
-    st.markdown(
-        "Welcome to Employee 360! Type your questions below to interact with me. "
-    )
+
+    # Spacer so rest of the page doesn't hide under fixed header
+    st.markdown("<div class='spacer'></div>", unsafe_allow_html=True)
+    
+    # Normal welcome message
+    st.markdown("Welcome to Employee 360! Type your questions below to interact with me.")
 
     # Sidebar with a reset button
     with st.sidebar:
         st.selectbox(
             "Selected semantic model:",
             AVAILABLE_SEMANTIC_MODELS_PATHS,
-            format_func=lambda s: s.split("/")[-1],
+            format_func=lambda s: s.split("/")[-1].replace(".yaml", ""),
             key="selected_semantic_model_path",
             on_change=reset_session_state,
         )
