@@ -20,7 +20,7 @@ from snowflake.snowpark.exceptions import SnowparkSQLException
 # List of available semantic model paths in the format: <DATABASE>.<SCHEMA>.<STAGE>/<FILE-NAME>
 # Each path points to a YAML file defining a semantic model
 AVAILABLE_SEMANTIC_MODELS_PATHS = [
-    "CORTEX_ANALYST_DEMO.EMPLOYEE_DEMO.RAW_DATA/refemployee_sf1.yaml"
+    "CORTEX_ANALYST_DEMO.EMPLOYEE_DEMO.RAW_DATA/Semantic_M1.yaml"
 ]
 API_ENDPOINT = "/api/v2/cortex/analyst/message"
 FEEDBACK_API_ENDPOINT = "/api/v2/cortex/analyst/feedback"
@@ -68,7 +68,7 @@ def show_header_and_sidebar():
         unsafe_allow_html=True
     )
     st.markdown(
-        "Welcome to Employee 360! Type your questions below to interact with your data. "
+        "Welcome to Employee 360! Type your questions below to interact with me. "
     )
 
     # Sidebar with a reset button
