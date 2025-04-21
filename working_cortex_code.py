@@ -1,3 +1,4 @@
+#https://snowflake.discourse.group/t/current_user-returns-none-in-streamlit-in-snowflake/2332/24
 # https://app.snowflake.com/aybbeqd/yx06618/#/streamlit-apps --> CORTEX_USER --> Welcome@1234
 """
 Cortex Analyst App
