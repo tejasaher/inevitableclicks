@@ -1,0 +1,16 @@
+High-Level Overview
+
+This initiative focuses on developing a tactical solution to provide visibility into revenue generated through Pruvo rebookings on cloud assets. Currently, all reporting related to Pruvo is handled manually by a third-party team or via the Pruvo interface. Pruvo is entitled to 35% of the profit share from rebooked transactions. This amount is manually calculated and tracked by the third-party team using spreadsheets and reports.
+
+The business requires a trusted and governed dataset to answer key functional questions about the performance of the Pruvo initiative. As part of this tactical solution, we are building a dataset in the Snowflake self-serve layer to be used by analysts and serve as a source for Tableau dashboards. This will help validate the number and quality of rebookings driven by Pruvo, ensuring the 35% profit share is accurately calculated.
+
+
+---
+
+Introduction
+
+The primary objective of this initiative is to support the business until the strategic solution is fully developed and deployed. The current rebooking process via Pruvo is manual, requiring the Ecom team to review revenue, calculate profits, and then initiate a payment of 35% to Pruvo.
+
+However, Ecom is now planning to automate this rebooking process, aiming to handle more than 25 bookings per day. This makes it critical for stakeholders to access reliable reporting that validates the number and validity of Pruvo-driven rebookings, ensuring that the 35% profit sharing is justified.
+
+While a separate customer team is working on a strategic solution involving proper dimensional modeling and data marts, this initiative focuses on delivering a tactical solution. It involves building a reporting-ready view directly from existing staging and warehouse layer objects to enable timely insights in the interim.
